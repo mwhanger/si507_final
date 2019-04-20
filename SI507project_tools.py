@@ -96,7 +96,7 @@ with app.app_context():
         end_rec = result['endIndex']
         tot = result["totalItems"]
         #for testing - 1 page
-        tot = 2000
+        # tot = 2000
         if end_rec >= tot: break
         params["page"] += 1
         #Sleeping between requests
