@@ -44,15 +44,16 @@ class Paper(db.Model):
     notes = db.Column(db.String)
     alt_titles = db.Column(db.String)
     lccn = db.Column(db.String,unique=True)
+    page = db.Column(db.Integer)
     publisher_id = db.Column(db.Integer, db.ForeignKey('publisher.id'))
     frequency_id = db.Column(db.Integer, db.ForeignKey('frequency.id'))
     #potential many-to-many foreign keys
     states = db.relationship('State', secondary=states, backref=db.backref('papers',lazy='dynamic'),lazy='dynamic')
-    place = db.relationship('Place', secondary=places, backref=db.backref('papers',lazy='dynamic'),lazy='dynamic')
+    places = db.relationship('Place', secondary=places, backref=db.backref('papers',lazy='dynamic'),lazy='dynamic')
     # publisher = db.relationship('Publisher', secondary=publishers, backref=db.backref('papers',lazy='dynamic'),lazy='dynamic')
     # frequency = db.relationship('Frequency', secondary=frequencies, backref=db.backref('papers',lazy='dynamic'),lazy='dynamic')
-    language = db.relationship('Language', secondary=languages, backref=db.backref('papers',lazy='dynamic'),lazy='dynamic')
-    subject = db.relationship('Subject', secondary=subjects, backref=db.backref('papers',lazy='dynamic'),lazy='dynamic')
+    languages = db.relationship('Language', secondary=languages, backref=db.backref('papers',lazy='dynamic'),lazy='dynamic')
+    subjects = db.relationship('Subject', secondary=subjects, backref=db.backref('papers',lazy='dynamic'),lazy='dynamic')
 
 class State(db.Model):
     id = db.Column(db.Integer, primary_key=True)
