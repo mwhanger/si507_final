@@ -5,7 +5,7 @@ import json
 import time
 
 #Importing main flask app file to use its context and database connection
-import si507_final as fp
+import SI507_final as fp
 
 def get_or_create_record(model, **kwargs):
     new_rec = model.query.filter_by(**kwargs).first()
@@ -19,26 +19,9 @@ def get_or_create_record(model, **kwargs):
         session.commit()
         return new_rec
 
-def paper_mapper(paper):
-    session.add(
-        fp.Paper(
-            title=item['title'],
-            place_of_publication = item['place_of_publication'] ,
-            start_year = item['start_year'],
-            end_year = item['end_year'],
-            notes = '\n'.join(item['note']),
-            alt_titles = '\n'.join(item['alt_title']),
-            lccn = item['lccn'],
-            # states = get_or_create_record(fp.State,name=item['state']),
-            # place = get_or_create_record(fp.Place,place=item['place']),
-            # publisher = get_or_create_record(fp.Publisher,name=item['publisher']),
-            # frequency = get_or_create_record(fp.Frequency,frequency=item['frequency']),
-            # language = get_or_create_record(fp.Language,language=item['language']),
-            # subject = get_or_create_record(fp.Subject,subject=item['subject'])
-        )
-    )
-#
-#     )
+
+#setting up a process timer
+start_time = time.time()
 
 #Using main app context to load db through SQLAlchemy ORM
 #https://stackoverflow.com/questions/31444036/runtimeerror-working-outside-of-application-context
@@ -57,6 +40,10 @@ with fp.app.app_context():
         result = requests.get(baseurl,params).json()
         for item in result['items']:
             # paper_mapper(item)
+            pubname = item['publisher'] or 'Unknown'
+            pub = get_or_create_record(fp.Publisher,name=pubname)
+            pubfreq = item['frequency'] or 'Unknown'
+            freq = get_or_create_record(fp.Frequency,frequency=pubfreq)
             paper = fp.Paper(
                 title=item['title'],
                 place_of_publication = item['place_of_publication'] ,
@@ -64,26 +51,43 @@ with fp.app.app_context():
                 end_year = item['end_year'],
                 notes = '\n'.join(item['note']),
                 alt_titles = '\n'.join(item['alt_title']),
-                lccn = item['lccn'])
-            session.add(paper)
+                lccn = item['lccn'],
+                publisher_id = pub.id,
+                frequency_id = freq.id)
+            if not fp.Paper.query.filter_by(lccn=paper.lccn).first():
+                session.add(paper)
+            #Many-to-one relationships
+            #Many-to-Many relationships - verifying integrity due to duplicates in data, then appending
             for state in item['state']:
                 s = get_or_create_record(fp.State,name=state)
-                # if not session.query(fp.State,fp.Paper).join('papers').filter_by(state_id=s.id,paper_id=paper.id):
                 if s not in session.query(fp.State).with_parent(paper):
                     s.papers.append(paper)
-                    # print(session.query(fp.State. fp.Paper).filter(fp.states.state_id == fp.State.id))
-        # if s in session.query(fp.State).with_parent(paper):
-        #     print('yes')
+            for place in item['place']:
+                p = get_or_create_record(fp.Place,place=place)
+                if p not in session.query(fp.Place).with_parent(paper):
+                    p.papers.append(paper)
+            for language in item['language']:
+                l = get_or_create_record(fp.Language,language=language)
+                if l not in session.query(fp.Language).with_parent(paper):
+                    l.papers.append(paper)
+            for subject in item['subject']:
+                subj = get_or_create_record(fp.Subject,subject=subject)
+                if subj not in session.query(fp.Subject).with_parent(paper):
+                    subj.papers.append(paper)
         session.commit()
         end_rec = result['endIndex']
         tot = result["totalItems"]
         #for testing - 1 page
-        tot = 100
+        # tot = 100
         if end_rec >= tot: break
         params["page"] += 1
-        time.sleep(5)
+        #Sleeping between requests
+        #Commenting out because integrity checks take long enough to count as a 'sleep'
+        # time.sleep(5)
 
+end_time = time.time()
 
+print("Process time:\n",time.strftime("%H:%M:%S", time.gmtime(end_time - start_time)))
 # with open('test_string.txt',"w",encoding="utf8",newline="") as testfile:
 #     testfile.write(first_result.text)
 #

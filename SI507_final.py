@@ -12,7 +12,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 with app.app_context():
     db.init_app(app)
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
 
 @app.route('/')
