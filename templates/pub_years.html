@@ -1,0 +1,21 @@
+{% extends "base_generic.html" %}
+{% block content %}
+  {% if papers %}
+    <h1>Papers that {{cond}} Publication
+      {% if state_name %} in {{state_name}} {% endif %}
+      in {{year}}</h1>
+    <ul>
+      {% for paper in papers %}
+        <li>{{paper.title}}, ({{paper.start_year}} - {{paper.end_year}})</li>
+      {% endfor %}
+    </ul>
+    {% if prev_url %}
+      <a href="{{ prev_url }}">Previous Page</a>
+    {% endif %}
+    {% if next_url %}
+      <a href="{{ next_url }}">Next Page</a>
+    {% endif %}
+  {% else %}
+    <p>No papers available to list right now.</p>
+  {% endif %}
+{% endblock %}
