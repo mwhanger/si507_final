@@ -37,10 +37,11 @@ def papers(page_num=1,state_name=None):
     prev_url = url_for('papers', state_name=state_name, page_num=papers.prev_num) if papers.has_prev else None
     return render_template("papers_list.html", papers=papers.items, next_url=next_url, prev_url=prev_url)
 
-@app.route('/ended/<int:year>')
-@app.route('/started/<int:year>')
-@app.route('/ended/<state_name>/<int:year>')
-@app.route('/started/<state_name>/<int:year>')
+#https://stackoverflow.com/questions/7782046/how-do-i-use-url-for-if-my-method-has-multiple-route-annotations
+@app.route('/ended/<int:year>', endpoint="ended")
+@app.route('/started/<int:year>', endpoint="started")
+@app.route('/ended/<state_name>/<int:year>', endpoint="ended")
+@app.route('/started/<state_name>/<int:year>', endpoint="started")
 def year_papers(year, state_name=None):
     #https://stackoverflow.com/questions/21498694/flask-get-current-route
     if "ended" in request.url_rule.rule:
@@ -56,8 +57,8 @@ def year_papers(year, state_name=None):
         papers = chose_state.papers.filter(getattr(Paper, filt)==year).order_by(Paper.title.asc()).paginate(page=page, per_page=25)
     else:
         papers = Paper.query.filter(getattr(Paper, filt)==year).order_by(Paper.title.asc()).paginate(page=page, per_page=25)
-    next_url = url_for('started', state_name=state_name, page=papers.next_num, year=year) if papers.has_next else None
-    prev_url = url_for('started', state_name=state_name, page=papers.prev_num, year=year) if papers.has_prev else None
+    next_url = url_for(cond.lower(), state_name=state_name, page=papers.next_num, year=year) if papers.has_next else None
+    prev_url = url_for(cond.lower(), state_name=state_name, page=papers.prev_num, year=year) if papers.has_prev else None
     return  render_template("pub_years.html", papers=papers.items, cond=cond, state_name=state_name, year=year, next_url=next_url, prev_url=prev_url)
 
 if __name__ == "__main__":
