@@ -31,12 +31,14 @@ def index():
 #https://stackoverflow.com/questions/14032066/can-flask-have-optional-url-parameters
 @app.route('/papers')
 @app.route('/papers/<int:page_num>')
+@app.route('/papers/<state_name>')
 @app.route('/papers/<state_name>/<int:page_num>')
 def papers(page_num=1,state_name=None):
     # if not page_num:
     #     page_num = 1
     #https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-ix-pagination
     if state_name:
+        # state_name = str(state_name)
         chose_state = State.query.filter_by(name=state_name).first()
         #print(chose_state.papers)
         papers = chose_state.papers.filter(Paper.start_year.notin_([9999,0,1000])).order_by(Paper.start_year.asc()).paginate(page=page_num, per_page=25)
