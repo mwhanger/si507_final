@@ -25,7 +25,7 @@ The Library of Congress helpfully provides guides and tutorials for using their 
 1. First, you should install the dependencies contained in the requirements.txt file, using the command `pip install -r requirements.txt`.
 2. From a terminal at the directory containing __all__ of the project python files, run the project tools with `python3 SI507project_tools.py`. No API keys or extra setup apart from installing require packages is neccessary - the LOC API is publicly available.
 3. Settle in for the long haul -- __there are nearly 160,000 records to retrieve, and the total runtime may take nearly 11 hours!__
-4. ![Project tools process completion time](tools_runtime.png)
+4. ![Project tools process completion time](tools_runtime.PNG)
 5. The tools file caches all results from the API in a `loc_cache.sqlite` database. A `chroniclingamerica.sqlite` is created with the resulting processed data after the first set of 100 results from the API are processed. The database and project tools file have integrity checks -- each time the tools are ran, they will check the database to see what the most recent 'page' of 100 results was that was retrieved from the database, and they will resume there. IN OTHER WORDS, if you process 20 pages of data from the API and then stop the script, the next time you run it, it will resume from page 20, verify all records and relationships from that page are in place in the database, and then continue on.
 
 ## How to run (Project Tests - `SI507project_tests.py`)
