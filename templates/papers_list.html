@@ -1,6 +1,10 @@
 {% extends "base_generic.html" %}
 {% block content %}
   {% if papers %}
+    <h2>Directory of All Historical Papers
+    {% if state_name %}
+      for {{state_name}}
+    {% endif %}</h2>
     <ul>
       {% for paper in papers %}
         <li>{{paper.title}}, ({{paper.start_year}} - {{paper.end_year}})</li>

@@ -17,7 +17,16 @@ with app.app_context():
 
 @app.route('/')
 def index():
-    return "Hello! This is a test that the app runs correctly."
+    # return "Hello! This is a test that the app runs correctly."
+    count = Paper.query.count()
+    list_page = url_for('papers')
+    return """
+    <h1>Matt's Library of Congress Chronicling America Newspaper Directory</h1>
+    <p>Welcome! This is a directory of newspaper metadata for all of the newspapers contained
+    in the Library of Congress's Chronicling America newspaper archive, a total of {} newspapers. Please review my README file
+    on <a href="https://github.com/mwhanger/si507_final">github</a> for a list of routes, or click
+    <a href="{}">here</a> for a full directory of all papers in the directory, in order from oldest to newest.
+    """.format(count,list_page)
 
 #https://stackoverflow.com/questions/14032066/can-flask-have-optional-url-parameters
 @app.route('/papers')
@@ -35,7 +44,7 @@ def papers(page_num=1,state_name=None):
         papers = Paper.query.filter(Paper.start_year.notin_([9999,0,1000])).order_by(Paper.start_year.asc()).paginate(page=page_num, per_page=25)
     next_url = url_for('papers', state_name=state_name, page_num=papers.next_num) if papers.has_next else None
     prev_url = url_for('papers', state_name=state_name, page_num=papers.prev_num) if papers.has_prev else None
-    return render_template("papers_list.html", papers=papers.items, next_url=next_url, prev_url=prev_url)
+    return render_template("papers_list.html", papers=papers.items, next_url=next_url, prev_url=prev_url, state_name=state_name)
 
 #https://stackoverflow.com/questions/7782046/how-do-i-use-url-for-if-my-method-has-multiple-route-annotations
 @app.route('/ended/<int:year>', endpoint="ended")
