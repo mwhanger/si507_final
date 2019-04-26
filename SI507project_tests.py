@@ -1,18 +1,19 @@
 import sqlite3
 import unittest
-from SI507project_tools import *
+from SI507_final import *
 
 class FinProjDBTests(unittest.TestCase):
 
-    def connect(self):
+    def setUp(self):
         self.conn = sqlite3.connect("chroniclingamerica.sqlite")
         self.cur = self.conn.cursor()
 
-    #verifying the many-to-many relationships in my database
+    #verifying a one-to-many relationship in my database
+    #Can't verify many-to-many -- all many-to-many values in my data have nulls as possible values
     def test_many(self):
-        self.cur.execute("Select * from Paper left join states on Paper.id = states.paper_id where states.state_id is null")
+        self.cur.execute("Select * from Paper where publisher_id is null")
         data = self.cur.fetchall()
-        self.assertFalse(data,"Testing that all papers have at least one state assigned.")
+        self.assertFalse(data,"Testing that all papers have a publisher assigned.")
 
     #verifying that all papers are unique by confirming that no duplicate lccn numbers are present
     def test_lccn(self):
@@ -20,17 +21,24 @@ class FinProjDBTests(unittest.TestCase):
         data = self.cur.fetchall()
         self.assertFalse(data,"Testing that all LCCN numbers are unique.")
 
+    def tearDown(self):
+    	self.conn.commit()
+    	self.conn.close()
+
 class FinProjVarTests(unittest.TestCase):
 
     #Defining an object of the class paper to verify the model works
-    def classTest(self):
+    def setUp(self):
         self.paper = Paper(title="Test Paper")
 
-    def test_paper_class():
+    def test_paper_class(self):
         self.assertIsInstance(self.paper, Paper, "Testing that Paper class in models file configured correctly and returns an instance of Paper.")
 
-    def test_flask_app():
+    def test_flask_app(self):
         self.assertIsInstance(app, Flask, "Testing that the app variable is a successfully defined Flask app.")
+
+    def tearDown(self):
+        del(self.paper)
 
 
 if __name__ == '__main__':
